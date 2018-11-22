@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SteeringBehaviorsNS
+namespace KalmanSimulation
 {
 
     public class World : MonoBehaviour

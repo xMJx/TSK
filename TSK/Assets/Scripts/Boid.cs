@@ -2,38 +2,34 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SteeringBehaviorsNS
+namespace KalmanSimulation
 {
 
     public class Boid : MonoBehaviour
     {
-
-        public Vector2 Velocity;
+        public KalmanFilter Kalman { get; set; }
+        public float MaxTurnRate { get; set; }
         public Vector2 Heading;
         public Vector2 Side;
-
-        public GameObject TempTarget;
-
-        public float Mass { get; set; }
-        public float MaxSpeed { get; set; }
-        public float MaxForce { get; set; }
-        public float MaxTurnRate { get; set; }
         
-        public SteeringBehaviors SteeringBehaviors { get; set; }
 
-        // Use this for initialization
-        void Start()
+        public Boid()
         {
             MaxTurnRate = 1.0f;
             Heading = new Vector2(0.0f, 1.0f);
+        }
+        // Use this for initialization
+        void Start()
+        {
+            Kalman = GetComponent<KalmanFilter>();
         }
 
         // Update is called once per frame
         void Update()
         {
-            //Vector2 SteeringForce = SteeringBehaviors.Calculate();
+            transform.position = Kalman.CalculatePosition(Time.fixedDeltaTime);
 
-            RotateHeadingToFacePosition(TempTarget.transform.position);
+            //RotateHeadingToFacePosition(transform.position);
             RotateBoidToMatchHeading();
         }
 

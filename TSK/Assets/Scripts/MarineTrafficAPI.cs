@@ -5,6 +5,11 @@ using UnityEngine;
 
 public class MarineTrafficAPI : MonoBehaviour
 {
+
+    private void Start()
+    {
+        //StartCoroutine(GetData("f525521f401343f71a775caee6988733962ca102", IdType.MMSI, 258809000, 1));
+    }
     /// <summary>
     /// {0} - API Key (40-character hexadecimal number)
     /// {1} - mmsi/imo/shipid (format: mmsi:integer)
