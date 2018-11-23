@@ -8,8 +8,14 @@ namespace KalmanSimulation
 {
     public class KalmanFilter : MonoBehaviour
     {
-        public Vector4 previousState; // lastX, lastY, lastVx, lastVy
+        private Vector4 prevState; // lastX, lastY, lastVx, lastVy
+        private Vector4 currState;
+        private Matrix4x4 prevP;
+        public Matrix4x4 currP;
+
         private Matrix4x4 A;
+        private Matrix4x4 AT;
+        private Matrix4x4 Q;
 
         //public KalmanFilter(float startX, float startY)
         //{
@@ -19,35 +25,42 @@ namespace KalmanSimulation
 
         public void Start()
         {
-            previousState = new Vector4(transform.position.x, transform.position.y, 0.0f, 0.0f);
+            prevState = new Vector4(transform.position.x, transform.position.y, 0.0f, 0.0f);
             A = new Matrix4x4();
+
+            Q = new Matrix4x4();
+            Q.SetRow(0, new Vector4(0.0001f, 0, 0, 0));
+            Q.SetRow(1, new Vector4(0, 0.0001f, 0, 0));
+            Q.SetRow(2, new Vector4(0, 0, 0.0001f, 0));
+            Q.SetRow(3, new Vector4(0, 0, 0, 0.0001f));
+
+            prevP = Q;
         }
 
-        public Vector3 CalculatePosition(float timestep)
+        public Vector2 CalculatePosition(float timestep)
         {
-            return Predict(timestep);
+            Predict(timestep);
+
+            return (Vector2)currState;
         }
 
-        public Vector3 Predict(float timestep)
+        public void Predict(float timestep)
         {
+            // odswiezenie A
             A.SetRow(0, new Vector4(1, 0, timestep, 0));
             A.SetRow(1, new Vector4(0, 1, 0, timestep));
-            A.SetRow(2, new Vector4(0, 0, 1, 0)); // to jest stale, mozna wrzucic do startu
-            A.SetRow(3, new Vector4(0, 0, 0, 1)); // to jest stale, mozna wrzucic do startu
+            A.SetRow(2, new Vector4(0, 0, 1, 0));
+            A.SetRow(3, new Vector4(0, 0, 0, 1));
+            
+            // estymacja stanu
+            currState = A * prevState;
+            prevState = currState;
+            
+            // transpozycja A
+            AT = A.transpose;
 
-            //Matrix4x4 AT = A.transpose;
-            //Vector2 P = new Vector2();
-            //Vector2 Q = new Vector2();
-
-            Vector4 newState = A * previousState;
-
-            //P = AddMatrices(A * P * AT, Q); // działa?
-
-            //Matrix4x4 H = new Matrix4x4(1, 1, 0, 0);
-            previousState = newState;
-
-            Vector2 newCoord = (Vector2)newState;
-            return newCoord;
+            // odswiezenie P
+            currP = AddMatrices(A*prevP*AT, Q);
         }
 
         public Matrix4x4 Correct(Matrix4x4 predict)
@@ -64,10 +77,10 @@ namespace KalmanSimulation
         public Matrix4x4 AddMatrices (Matrix4x4 A, Matrix4x4 B)
         {
             Matrix4x4 ret = new Matrix4x4();
-            ret.SetRow(0, new Vector4(A.m00 + B.m00, A.m10 + B.m10, A.m20 + B.m20, A.m30 + B.m30));
-            ret.SetRow(1, new Vector4(A.m01 + B.m01, A.m11 + B.m11, A.m21 + B.m21, A.m31 + B.m31));
-            ret.SetRow(2, new Vector4(A.m02 + B.m02, A.m12 + B.m12, A.m22 + B.m22, A.m32 + B.m32));
-            ret.SetRow(3, new Vector4(A.m03 + B.m03, A.m13 + B.m13, A.m23 + B.m23, A.m33 + B.m33));
+            ret.SetColumn(0, new Vector4(A.m00 + B.m00, A.m10 + B.m10, A.m20 + B.m20, A.m30 + B.m30)); 
+            ret.SetColumn(1, new Vector4(A.m01 + B.m01, A.m11 + B.m11, A.m21 + B.m21, A.m31 + B.m31));
+            ret.SetColumn(2, new Vector4(A.m02 + B.m02, A.m12 + B.m12, A.m22 + B.m22, A.m32 + B.m32));
+            ret.SetColumn(3, new Vector4(A.m03 + B.m03, A.m13 + B.m13, A.m23 + B.m23, A.m33 + B.m33));
 
             return ret;
         }
