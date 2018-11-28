@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class MarineTrafficAPI : MonoBehaviour
@@ -88,6 +89,8 @@ public class MarineTrafficAPI : MonoBehaviour
                     }
                 }
             //TODO: Set data and start simulation
+
+            data.Sort((a, b) => a.TIMESTAMP.CompareTo(b.TIMESTAMP));
             boid.Kalman.GPSData = data;
             boid.Activate();
 

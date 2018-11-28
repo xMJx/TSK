@@ -12,18 +12,13 @@ namespace KalmanSimulation
         private Vector4 currState;
         private Matrix4x4 prevP;
         public Matrix4x4 currP;
+        private MarineTrafficResponse currentGPS;
 
         private Matrix4x4 A;
         private Matrix4x4 AT;
         private Matrix4x4 Q;
         
         public List<MarineTrafficResponse> GPSData { get; set; }
-
-        //public KalmanFilter(float startX, float startY)
-        //{
-        //    previousX = startX;
-        //    previousY = startY;
-        //}
 
         public void Start()
         {
@@ -67,6 +62,12 @@ namespace KalmanSimulation
 
         public Matrix4x4 Correct(Matrix4x4 predict)
         {
+
+            Matrix4x4 K = currP;
+
+            currState = currState + K * (new Vector4((float)currentGPS.LON, (float)currentGPS.LAT, 0,0)-currState);
+
+
             Matrix4x4 correct = predict;
             return correct;
         }
@@ -74,6 +75,16 @@ namespace KalmanSimulation
         public double DistanceAB(Vector2 A, Vector2 B)
         {
             return Mathf.Sqrt(Mathf.Pow((B.x - A.x), 2) + Mathf.Pow((Mathf.Cos(A.x * Mathf.PI / 180) * (B.y - A.y)), 2)) * 40075.704 / 360;
+        }
+
+        public float KnotsToMetersPerSec (float knots)
+        {
+            return 0.514444444f * knots;
+        }
+
+        public float CourseToRadians (int course)
+        {
+            return 0.0174532925f * (90 - course);
         }
 
         public Matrix4x4 AddMatrices (Matrix4x4 A, Matrix4x4 B)
@@ -85,6 +96,18 @@ namespace KalmanSimulation
             ret.SetColumn(3, new Vector4(A.m03 + B.m03, A.m13 + B.m13, A.m23 + B.m23, A.m33 + B.m33));
 
             return ret;
+        }
+
+        public Vector4 UtilizeGPSData(MarineTrafficResponse data)
+        {
+            // czy to dziala?
+
+            float x = (float)data.LON;
+            float y = (float)data.LAT;
+            float Vx = KnotsToMetersPerSec(data.SPEED * Mathf.Sin(CourseToRadians(data.COURSE)));
+            float Vy = KnotsToMetersPerSec(data.SPEED * Mathf.Cos(CourseToRadians(data.COURSE)));
+
+            return new Vector4(x, y, Vx, Vy);
         }
     }
 }

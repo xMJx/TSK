@@ -8,9 +8,10 @@ namespace KalmanSimulation
     public class Boid : MonoBehaviour
     {
         public KalmanFilter Kalman { get; set; }
-        public float MaxTurnRate { get; set; }
         public Vector2 Heading;
         public Vector2 Side;
+        public float MaxTurnRate { get; set; }
+
         private bool active;
 
         public Boid()
