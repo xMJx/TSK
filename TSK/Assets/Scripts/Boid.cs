@@ -11,7 +11,7 @@ namespace KalmanSimulation
         public Vector2 Heading;
         public Vector2 Side;
         public float MaxTurnRate { get; set; }
-
+        private float time;
         private bool active;
 
         public Boid()
@@ -29,9 +29,10 @@ namespace KalmanSimulation
         // Update is called once per frame
         void Update()
         {
-            if (active)
+            if (active && Time.time > time + 2)
             {
-                transform.position = Kalman.CalculatePosition(Time.fixedDeltaTime);
+                time = Time.time;
+                transform.position = Kalman.CalculatePosition(3600);
 
                 //RotateHeadingToFacePosition(transform.position);
                 RotateBoidToMatchHeading();
@@ -69,6 +70,7 @@ namespace KalmanSimulation
         public void Activate()
         {
             active = true;
+            time = Time.time;
         }
     }
 }

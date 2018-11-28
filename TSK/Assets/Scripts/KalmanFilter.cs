@@ -13,10 +13,12 @@ namespace KalmanSimulation
         private Matrix4x4 prevP;
         public Matrix4x4 currP;
         private MarineTrafficResponse currentGPS;
+        private MarineTrafficResponse initialGPS = null;
 
         private Matrix4x4 A;
         private Matrix4x4 AT;
         private Matrix4x4 Q;
+        private int i = 0;
         
         public List<MarineTrafficResponse> GPSData { get; set; }
 
@@ -36,7 +38,15 @@ namespace KalmanSimulation
 
         public Vector2 CalculatePosition(float timestep)
         {
-            Predict(timestep);
+            if (initialGPS == null)
+            {
+                initialGPS = GPSData[0];
+            }
+            if (i<GPSData.Count)
+            {
+                Predict(timestep);
+                Correct();
+            }
 
             return (Vector2)currState;
         }
@@ -60,16 +70,16 @@ namespace KalmanSimulation
             currP = AddMatrices(A*prevP*AT, Q);
         }
 
-        public Matrix4x4 Correct(Matrix4x4 predict)
+        public void Correct()
         {
+            currentGPS = GPSData[i++];
+
+            Vector4 z = UtilizeGPSData(currentGPS);
+
 
             Matrix4x4 K = currP;
 
-            currState = currState + K * (new Vector4((float)currentGPS.LON, (float)currentGPS.LAT, 0,0)-currState);
-
-
-            Matrix4x4 correct = predict;
-            return correct;
+            currState = currState + K * (z-currState);
         }
 
         public double DistanceAB(Vector2 A, Vector2 B)
@@ -77,9 +87,9 @@ namespace KalmanSimulation
             return Mathf.Sqrt(Mathf.Pow((B.x - A.x), 2) + Mathf.Pow((Mathf.Cos(A.x * Mathf.PI / 180) * (B.y - A.y)), 2)) * 40075.704 / 360;
         }
 
-        public float KnotsToMetersPerSec (float knots)
+        public float KnotsToKilometersPerHour (float knots)
         {
-            return 0.514444444f * knots;
+            return 1.85f * knots;
         }
 
         public float CourseToRadians (int course)
@@ -102,10 +112,10 @@ namespace KalmanSimulation
         {
             // czy to dziala?
 
-            float x = (float)data.LON;
-            float y = (float)data.LAT;
-            float Vx = KnotsToMetersPerSec(data.SPEED * Mathf.Sin(CourseToRadians(data.COURSE)));
-            float Vy = KnotsToMetersPerSec(data.SPEED * Mathf.Cos(CourseToRadians(data.COURSE)));
+            float x = (float)data.LON - (float)initialGPS.LON;
+            float y = (float)data.LAT - (float)initialGPS.LAT;
+            float Vx = KnotsToKilometersPerHour(data.SPEED/10 * Mathf.Cos(CourseToRadians(data.COURSE)));
+            float Vy = KnotsToKilometersPerHour(data.SPEED/10 * Mathf.Sin(CourseToRadians(data.COURSE)));
 
             return new Vector4(x, y, Vx, Vy);
         }
