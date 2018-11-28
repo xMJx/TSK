@@ -4,14 +4,30 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MarineTrafficAPI : MonoBehaviour
 {
     public Boid boid;
+    public InputField inputAPI;
+    public InputField inputID;
+    public Dropdown inputType;
+    public Button buttonStart;
     private void Start()
     {
         //StartCoroutine(GetData("f525521f401343f71a775caee6988733962ca102", IdType.MMSI, 258809000, 1));
+        buttonStart.onClick.AddListener(OnClick);
     }
+
+    private void OnClick()
+    {
+        StartCoroutine(GetData(inputAPI.text, (IdType)inputType.value, int.Parse(inputID.text), 1));
+        inputAPI.enabled = false;
+        inputID.enabled = false;
+        inputType.enabled = false;
+        buttonStart.enabled = false;
+    }
+
     /// <summary>
     /// {0} - API Key (40-character hexadecimal number)
     /// {1} - mmsi/imo/shipid (format: mmsi:integer)
@@ -107,9 +123,9 @@ public class MarineTrafficAPI : MonoBehaviour
 
 public enum IdType
 {
-    MMSI,
-    IMO,
-    SHIPID
+    MMSI = 0,
+    IMO = 1,
+    SHIPID = 2
 }
 
 public class MarineTrafficResponse
