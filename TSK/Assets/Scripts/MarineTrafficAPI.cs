@@ -1,11 +1,12 @@
-﻿using System;
+﻿using KalmanSimulation;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class MarineTrafficAPI : MonoBehaviour
 {
-
+    public Boid boid;
     private void Start()
     {
         //StartCoroutine(GetData("f525521f401343f71a775caee6988733962ca102", IdType.MMSI, 258809000, 1));
@@ -87,6 +88,9 @@ public class MarineTrafficAPI : MonoBehaviour
                     }
                 }
             //TODO: Set data and start simulation
+            boid.Kalman.GPSData = data;
+            boid.Activate();
+
             //Class.data = data;
             Debug.Log(json);
             foreach (var d in data)

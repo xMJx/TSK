@@ -11,12 +11,13 @@ namespace KalmanSimulation
         public float MaxTurnRate { get; set; }
         public Vector2 Heading;
         public Vector2 Side;
-        
+        private bool active;
 
         public Boid()
         {
             MaxTurnRate = 1.0f;
             Heading = new Vector2(0.0f, 1.0f);
+            active = false;
         }
         // Use this for initialization
         void Start()
@@ -27,10 +28,13 @@ namespace KalmanSimulation
         // Update is called once per frame
         void Update()
         {
-            transform.position = Kalman.CalculatePosition(Time.fixedDeltaTime);
+            if (active)
+            {
+                transform.position = Kalman.CalculatePosition(Time.fixedDeltaTime);
 
-            //RotateHeadingToFacePosition(transform.position);
-            RotateBoidToMatchHeading();
+                //RotateHeadingToFacePosition(transform.position);
+                RotateBoidToMatchHeading();
+            }
         }
 
         bool RotateHeadingToFacePosition(Vector2 target)
@@ -54,12 +58,16 @@ namespace KalmanSimulation
             return false;
         }
 
-        bool RotateBoidToMatchHeading()
+        public bool RotateBoidToMatchHeading()
         {
             transform.rotation = Quaternion.EulerRotation(0,0,-Mathf.Atan2(Heading.x, Heading.y));
 
             return false;
         }
-
+        
+        public void Activate()
+        {
+            active = true;
+        }
     }
 }

@@ -16,6 +16,8 @@ namespace KalmanSimulation
         private Matrix4x4 A;
         private Matrix4x4 AT;
         private Matrix4x4 Q;
+        
+        public List<MarineTrafficResponse> GPSData { get; set; }
 
         //public KalmanFilter(float startX, float startY)
         //{
