@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace KalmanSimulation
 {
-
+    [RequireComponent(typeof(LineRenderer))]
     public class Boid : MonoBehaviour
     {
         public KalmanFilter Kalman { get; set; }
@@ -13,6 +13,7 @@ namespace KalmanSimulation
         public float MaxTurnRate { get; set; }
         private float time;
         private bool active;
+        private LineRenderer lineRenderer;
 
         public Boid()
         {
@@ -24,6 +25,9 @@ namespace KalmanSimulation
         void Start()
         {
             Kalman = GetComponent<KalmanFilter>();
+            lineRenderer = GetComponent<LineRenderer>();
+            lineRenderer.positionCount = 1;
+            lineRenderer.SetPosition(0, Vector3.zero);
         }
 
         // Update is called once per frame
@@ -32,8 +36,8 @@ namespace KalmanSimulation
             if (active && Time.time > time + 2)
             {
                 time = Time.time;
-                transform.position = Kalman.CalculatePosition(3600);
-
+                transform.position = Kalman.CalculatePosition(3600) * 0.1f;
+                //Kalman.DrawNextGPS(lineRenderer);
                 //RotateHeadingToFacePosition(transform.position);
                 RotateBoidToMatchHeading();
             }
@@ -53,7 +57,7 @@ namespace KalmanSimulation
 
             //Heading = toTarget;
             Heading.Normalize();
-            
+
             Heading = Quaternion.Euler(0, 0, angle) * Heading;
 
 
@@ -62,11 +66,11 @@ namespace KalmanSimulation
 
         public bool RotateBoidToMatchHeading()
         {
-            transform.rotation = Quaternion.EulerRotation(0,0,-Mathf.Atan2(Heading.x, Heading.y));
+            transform.rotation = Quaternion.EulerRotation(0, 0, -Mathf.Atan2(Heading.x, Heading.y));
 
             return false;
         }
-        
+
         public void Activate()
         {
             active = true;
