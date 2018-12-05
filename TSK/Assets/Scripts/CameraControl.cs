@@ -2,7 +2,7 @@
 
 public class CameraControl : MonoBehaviour
 {
-    [Range(0.001f, 0.2f)]
+    [Range(0.001f, 0.5f)]
     public float sensetivity = 0.055f;
     private Vector2 start;
     // Use this for initialization
@@ -17,7 +17,7 @@ public class CameraControl : MonoBehaviour
     {
         var size = Camera.main.orthographicSize;
         size -= Input.mouseScrollDelta.y;
-        size = Mathf.Clamp(size, 1, 100);
+        size = Mathf.Clamp(size, 1, 1000);
         Camera.main.orthographicSize = size;
         var x_y = new Vector2(Camera.main.transform.position.x, Camera.main.transform.position.y);
         if (Input.GetMouseButtonDown(2))

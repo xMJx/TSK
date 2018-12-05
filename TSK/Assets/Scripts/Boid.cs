@@ -36,8 +36,8 @@ namespace KalmanSimulation
             if (active && Time.time > time + 2)
             {
                 time = Time.time;
-                transform.position = Kalman.CalculatePosition(3600) * 0.1f;
-                //Kalman.DrawNextGPS(lineRenderer);
+                transform.position = Kalman.CalculatePosition(3600);// * 0.000001f;
+                Kalman.DrawNextGPS(lineRenderer);
                 //RotateHeadingToFacePosition(transform.position);
                 RotateBoidToMatchHeading();
             }
